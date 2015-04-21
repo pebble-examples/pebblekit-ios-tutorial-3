@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="vXZ-lx-hvc">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="ufC-wZ-h7g">
+            <objects>
+                <viewController id="vXZ-lx-hvc" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="jyV-Pf-zRb"/>
+                        <viewControllerLayoutGuide type="bottom" id="2fi-mo-0CV"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TvB-0W-R9q">
+                                <rect key="frame" x="0.0" y="-21" width="42" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k16-uA-TdB">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Rock">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="onRockPressed:" destination="vXZ-lx-hvc" eventType="touchDown" id="nkI-x6-Dw6"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2lz-kb-o0Q">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Paper">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="onPaperPressed:" destination="vXZ-lx-hvc" eventType="touchDown" id="8T1-oJ-o12"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rri-zD-dDZ">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Scissors">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="onScissorsPressed:" destination="vXZ-lx-hvc" eventType="touchDown" id="YhT-2s-1rj"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ggX-Xz-tz8">
+                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="255" id="Xqf-1K-Ca6"/>
+                                </constraints>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="Xqf-1K-Ca6"/>
+                                    </mask>
+                                </variation>
+                                <variation key="heightClass=regular-widthClass=compact">
+                                    <mask key="constraints">
+                                        <include reference="Xqf-1K-Ca6"/>
+                                    </mask>
+                                </variation>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Rri-zD-dDZ" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="5uj-K7-gyV"/>
+                            <constraint firstItem="ggX-Xz-tz8" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="CZt-AX-gpJ"/>
+                            <constraint firstItem="k16-uA-TdB" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="DPX-bb-OJj"/>
+                            <constraint firstItem="ggX-Xz-tz8" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="HDz-yX-lPT"/>
+                            <constraint firstItem="2lz-kb-o0Q" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="Otd-pF-Lkp"/>
+                            <constraint firstItem="ggX-Xz-tz8" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="QSJ-H1-DoP"/>
+                            <constraint firstItem="k16-uA-TdB" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="307" id="SYo-Ee-a8G"/>
+                            <constraint firstItem="Rri-zD-dDZ" firstAttribute="top" secondItem="2lz-kb-o0Q" secondAttribute="bottom" constant="38" id="Smq-R1-lH3"/>
+                            <constraint firstItem="k16-uA-TdB" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="a00-Sp-hsq"/>
+                            <constraint firstItem="2lz-kb-o0Q" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="cEX-nX-vut"/>
+                            <constraint firstItem="TvB-0W-R9q" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="263" id="fls-z2-2CR"/>
+                            <constraint firstItem="2lz-kb-o0Q" firstAttribute="top" secondItem="k16-uA-TdB" secondAttribute="bottom" constant="28" id="kbC-Fk-949"/>
+                            <constraint firstItem="Rri-zD-dDZ" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="wGj-XL-3qY"/>
+                            <constraint firstItem="TvB-0W-R9q" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" id="yt2-f0-UGn"/>
+                            <constraint firstItem="TvB-0W-R9q" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="zSx-pq-mbh"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="TvB-0W-R9q"/>
+                                <exclude reference="k16-uA-TdB"/>
+                                <exclude reference="2lz-kb-o0Q"/>
+                                <exclude reference="Rri-zD-dDZ"/>
+                                <exclude reference="ggX-Xz-tz8"/>
+                            </mask>
+                            <mask key="constraints">
+                                <exclude reference="fls-z2-2CR"/>
+                                <exclude reference="yt2-f0-UGn"/>
+                                <exclude reference="zSx-pq-mbh"/>
+                                <exclude reference="Otd-pF-Lkp"/>
+                                <exclude reference="cEX-nX-vut"/>
+                                <exclude reference="kbC-Fk-949"/>
+                                <exclude reference="5uj-K7-gyV"/>
+                                <exclude reference="Smq-R1-lH3"/>
+                                <exclude reference="wGj-XL-3qY"/>
+                                <exclude reference="DPX-bb-OJj"/>
+                                <exclude reference="SYo-Ee-a8G"/>
+                                <exclude reference="a00-Sp-hsq"/>
+                                <exclude reference="CZt-AX-gpJ"/>
+                                <exclude reference="HDz-yX-lPT"/>
+                                <exclude reference="QSJ-H1-DoP"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular-widthClass=compact">
+                            <mask key="subviews">
+                                <include reference="TvB-0W-R9q"/>
+                                <include reference="k16-uA-TdB"/>
+                                <include reference="2lz-kb-o0Q"/>
+                                <include reference="Rri-zD-dDZ"/>
+                                <include reference="ggX-Xz-tz8"/>
+                            </mask>
+                            <mask key="constraints">
+                                <include reference="fls-z2-2CR"/>
+                                <include reference="yt2-f0-UGn"/>
+                                <include reference="zSx-pq-mbh"/>
+                                <include reference="Otd-pF-Lkp"/>
+                                <include reference="cEX-nX-vut"/>
+                                <include reference="kbC-Fk-949"/>
+                                <include reference="5uj-K7-gyV"/>
+                                <include reference="Smq-R1-lH3"/>
+                                <include reference="wGj-XL-3qY"/>
+                                <include reference="DPX-bb-OJj"/>
+                                <include reference="SYo-Ee-a8G"/>
+                                <include reference="a00-Sp-hsq"/>
+                                <include reference="CZt-AX-gpJ"/>
+                                <include reference="HDz-yX-lPT"/>
+                                <include reference="QSJ-H1-DoP"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <connections>
+                        <outlet property="imageView" destination="ggX-Xz-tz8" id="gf3-qu-vHD"/>
+                        <outlet property="outputLabel" destination="TvB-0W-R9q" id="0EB-0x-WqU"/>
+                        <outlet property="paperButton" destination="2lz-kb-o0Q" id="Syu-vN-QQ6"/>
+                        <outlet property="rockButton" destination="k16-uA-TdB" id="9Ni-xm-RLr"/>
+                        <outlet property="scissorsButton" destination="Rri-zD-dDZ" id="WdI-8G-GV0"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="289.5" y="381.75"/>
+        </scene>
+    </scenes>
+</document>
