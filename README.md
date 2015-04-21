@@ -2,6 +2,9 @@
 
 Example project code for the PebbleKit iOS Tutorial (Part 3).
 
+The `starter` branch contains the starter project, to be completed by following
+the tutorial. The `master` branch contains the completed project.
+
 The tutorial content will be released soon.
 
 See [pebble-ios-sdk](https://github.com/pebble/pebble-ios-sdk) and the
