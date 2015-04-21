@@ -66,39 +66,18 @@ int gameCounter, winCounter;
     // Setup delegate
     [[PBPebbleCentral defaultCentral] setDelegate:self];
     
-    // UUID of watchapp starter project: af17efe7-2141-4eb2-b62a-19fc1b595595
-    uint8_t bytes[] = {0xaf, 0x17, 0xef, 0xe7, 0x21, 0x41, 0x4e, 0xb2, 0xb6, 0x2a, 0x19, 0xfc, 0x1b, 0x59, 0x55, 0x95};
-    NSData *uuid = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    [[PBPebbleCentral defaultCentral] setAppUUID:uuid];
-    
     // Get watch reference
     self.watch = [[PBPebbleCentral defaultCentral] lastConnectedWatch];
     if(self.watch) {
         // Watch connected!
         [self.outputLabel setText:@"Choose a weapon..."];
-        
-        // Register for AppMessage delivery
-        [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
-            // A new message has been received in 'update'
-            if([update objectForKey:@(KEY_CHOICE)]) {
-                // The KEY_CHOICE key is in the message!
-                remoteChoice = [[update objectForKey:@(KEY_CHOICE)] intValue];
-                
-                // Has the iOS player chosen already?
-                if(localChoice != CHOICE_WAITING) {
-                    [self doMatch];
-                }
-            }
-            
-            return YES;
-        }];
     } else {
         // Watch not connected!
         [self.outputLabel setText:@"Watch NOT connected!"];
     }
     
     // Set initial image
-    [self updateUI];
+    [self setImage:@"unknown"];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -161,24 +140,18 @@ int gameCounter, winCounter;
     // Remember how many games in this session
     gameCounter++;
     
-    // Prepare message for Pebble app
-    NSMutableDictionary *outgoing = [NSMutableDictionary new];
-    
     switch (localChoice) {
         case CHOICE_ROCK:
             switch(remoteChoice) {
                 case CHOICE_ROCK:
                     [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
                     break;
                 case CHOICE_PAPER:
                     [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
                     break;
                 case CHOICE_SCISSORS:
                     winCounter++;
                     [self.outputLabel setText:[NSString stringWithFormat:@"You win! (%d of %d)", winCounter, gameCounter]];
-                    [outgoing setObject:@(RESULT_LOSE) forKey:@(KEY_RESULT)];
                     break;
             }
             break;
@@ -190,11 +163,9 @@ int gameCounter, winCounter;
                     break;
                 case CHOICE_PAPER:
                     [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
                     break;
                 case CHOICE_SCISSORS:
                     [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
                     break;
             }
             break;
@@ -202,28 +173,17 @@ int gameCounter, winCounter;
             switch(remoteChoice) {
                 case CHOICE_ROCK:
                     [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
                     break;
                 case CHOICE_PAPER:
                     winCounter++;
                     [self.outputLabel setText:[NSString stringWithFormat:@"You win! (%d of %d)", winCounter, gameCounter]];
-                    [outgoing setObject:@(RESULT_LOSE) forKey:@(KEY_RESULT)];
                     break;
                 case CHOICE_SCISSORS:
                     [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
                     break;
             }
             break;
     }
-    
-    // Send message to Pebble player
-    [self.watch appMessagesPushUpdate:outgoing onSent:^(PBWatch *watch, NSDictionary *update, NSError *error) {
-        // Successful?
-        if(error) {
-            NSLog(@"Error sending update: %@", error);
-        }
-    }];
     
     // Finally reset both
     localChoice = CHOICE_WAITING;
