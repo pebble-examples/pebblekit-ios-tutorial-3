@@ -82,8 +82,17 @@ typedef NS_ENUM(NSUInteger, Choice) {
     // Watch connected, ask user for choice
     [self.outputLabel setText:@"Choose a weapon..."];
     
+    // Keep a weak reference to self to prevent it staying around forever
+    __weak typeof(self) welf = self;
+    
     // Register for AppMessage delivery
     [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
+        __strong typeof(welf) sself = welf;
+        if(!sself) {
+            // self has been destroyed
+            return NO;
+        }
+        
         // A new message has been received in 'update'
         if(update[@(KeyChoice)]) {
             // The KeyChoice key is in the message!
