@@ -73,8 +73,8 @@ typedef NS_ENUM(NSUInteger, Choice) {
     self.imageView.image = img;
 }
 
--(void)pebbleCentral:(PBPebbleCentral *)central watchDidConnect:(PBWatch *)watch isNew:(BOOL)isNew {
-    if(self.watch) {
+- (void)pebbleCentral:(PBPebbleCentral *)central watchDidConnect:(PBWatch *)watch isNew:(BOOL)isNew {
+    if (self.watch) {
         return;
     }
     self.watch = watch;
@@ -88,18 +88,18 @@ typedef NS_ENUM(NSUInteger, Choice) {
     // Register for AppMessage delivery
     [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
         __strong typeof(welf) sself = welf;
-        if(!sself) {
+        if (!sself) {
             // self has been destroyed
             return NO;
         }
         
         // A new message has been received in 'update'
-        if(update[@(KeyChoice)]) {
+        if (update[@(KeyChoice)]) {
             // The KeyChoice key is in the message!
             self.remoteChoice = [update[@(KeyChoice)] intValue];
             
             // Has the iOS player chosen already?
-            if(self.localChoice != ChoiceWaiting) {
+            if (self.localChoice != ChoiceWaiting) {
                 [self doMatch];
             }
         }
@@ -108,9 +108,9 @@ typedef NS_ENUM(NSUInteger, Choice) {
     }];
 }
 
--(void)pebbleCentral:(PBPebbleCentral *)central watchDidDisconnect:(PBWatch *)watch {
+- (void)pebbleCentral:(PBPebbleCentral *)central watchDidDisconnect:(PBWatch *)watch {
     // Only remove reference if it was the current active watch
-    if(self.watch == watch) {
+    if (self.watch == watch) {
         self.watch = nil;
         self.outputLabel.text = @"Watch disconnected";
     }
@@ -145,7 +145,7 @@ typedef NS_ENUM(NSUInteger, Choice) {
 }
 
 - (void)updateUI {
-    if(self.localChoice == ChoiceWaiting) {
+    if (self.localChoice == ChoiceWaiting) {
         self.outputLabel.text = @"Choose your weapon...";
         self.rockButton.enabled = YES;
         self.paperButton.enabled = YES;
@@ -175,13 +175,13 @@ typedef NS_ENUM(NSUInteger, Choice) {
     }
     
     // Check Pebble player response has arrived first
-    if(self.localChoice != ChoiceWaiting && self.remoteChoice != ChoiceWaiting) {
+    if (self.localChoice != ChoiceWaiting && self.remoteChoice != ChoiceWaiting) {
         [self doMatch];
     }
 }
 
--(GameResult)compareChoices {
-    if(self.localChoice == self.remoteChoice) {
+- (GameResult)compareChoices {
+    if (self.localChoice == self.remoteChoice) {
         // It's a tie!
         return ResultTie;
     } else {
@@ -244,7 +244,7 @@ typedef NS_ENUM(NSUInteger, Choice) {
     
     // Send message to Pebble player
     [self.watch appMessagesPushUpdate:outgoing onSent:^(PBWatch *watch, NSDictionary *update, NSError *error) {
-        if(error) {
+        if (error) {
             NSLog(@"Error sending update: %@", error);
         }
     }];
