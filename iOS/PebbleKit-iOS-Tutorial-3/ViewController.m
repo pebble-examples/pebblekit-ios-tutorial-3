@@ -9,18 +9,31 @@
 #import "ViewController.h"
 #import "PebbleKit/PebbleKit.h"
 
-#define KEY_CHOICE 0
-#define CHOICE_ROCK 0
-#define CHOICE_PAPER 1
-#define CHOICE_SCISSORS 2
-#define CHOICE_WAITING 3
+// AppMessage key values
+typedef NS_ENUM(NSUInteger, AppMessageKey) {
+    KeyChoice = 0,
+    KeyResult
+};
 
-#define KEY_RESULT 1
-#define RESULT_LOSE 0
-#define RESULT_WIN 1
-#define RESULT_TIE 2
+// Game result values
+typedef NS_ENUM(NSUInteger, GameResult) {
+    ResultLose = 0,
+    ResultWin,
+    ResultTie
+};
+
+// Game weapon choices
+typedef NS_ENUM(NSUInteger, Choice) {
+    ChoiceRock = 0,
+    ChoicePaper,
+    ChoiceScissors,
+    ChoiceWaiting
+};
 
 @interface ViewController () <PBPebbleCentralDelegate>
+
+@property (weak, nonatomic) PBPebbleCentral *central;
+@property (weak, nonatomic) PBWatch *watch;
 
 @property (weak, nonatomic) IBOutlet UILabel *outputLabel;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;
@@ -28,118 +41,157 @@
 @property (weak, nonatomic) IBOutlet UIButton *paperButton;
 @property (weak, nonatomic) IBOutlet UIButton *scissorsButton;
 
-@property PBWatch *watch;
+// State variables
+@property (nonatomic) Choice localChoice;
+@property (nonatomic) Choice remoteChoice;
+@property (nonatomic) NSUInteger gameCounter;
+@property (nonatomic) NSUInteger winCounter;
 
 @end
 
 @implementation ViewController
 
-// State variables
-int localChoice = CHOICE_WAITING;
-int remoteChoice = CHOICE_WAITING;
-int gameCounter, winCounter;
 
 - (IBAction)onRockPressed:(id)sender {
-    localChoice = CHOICE_ROCK;
+    self.localChoice = ChoiceRock;
     [self updateUI];
 }
 
 - (IBAction)onPaperPressed:(id)sender {
-    localChoice = CHOICE_PAPER;
+    self.localChoice = ChoicePaper;
     [self updateUI];
 }
 
 - (IBAction)onScissorsPressed:(id)sender {
-    localChoice = CHOICE_SCISSORS;
+    self.localChoice = ChoiceScissors;
     [self updateUI];
 }
 
 - (void)setImage:(NSString*) name {
     NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"png"];
     UIImage *img = [UIImage imageWithContentsOfFile:path];
-    [self.imageView setImage:img];
+    self.imageView.image = img;
+}
+
+-(void)pebbleCentral:(PBPebbleCentral *)central watchDidConnect:(PBWatch *)watch isNew:(BOOL)isNew {
+    if(self.watch) {
+        return;
+    }
+    self.watch = watch;
+    
+    // Watch connected, ask user for choice
+    [self.outputLabel setText:@"Choose a weapon..."];
+    
+    // Register for AppMessage delivery
+    [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
+        // A new message has been received in 'update'
+        if(update[@(KeyChoice)]) {
+            // The KeyChoice key is in the message!
+            self.remoteChoice = [update[@(KeyChoice)] intValue];
+            
+            // Has the iOS player chosen already?
+            if(self.localChoice != ChoiceWaiting) {
+                [self doMatch];
+            }
+        }
+        
+        return YES;
+    }];
+}
+
+-(void)pebbleCentral:(PBPebbleCentral *)central watchDidDisconnect:(PBWatch *)watch {
+    // Only remove reference if it was the current active watch
+    if(self.watch == watch) {
+        self.watch = nil;
+        self.outputLabel.text = @"Watch disconnected";
+    }
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.localChoice = ChoiceWaiting;
+    self.remoteChoice = ChoiceWaiting;
+    
     // Setup delegate
-    [[PBPebbleCentral defaultCentral] setDelegate:self];
+    self.central = [PBPebbleCentral defaultCentral];
+    self.central.delegate = self;
     
     // UUID of watchapp starter project: af17efe7-2141-4eb2-b62a-19fc1b595595
-    uint8_t bytes[] = {0xaf, 0x17, 0xef, 0xe7, 0x21, 0x41, 0x4e, 0xb2, 0xb6, 0x2a, 0x19, 0xfc, 0x1b, 0x59, 0x55, 0x95};
-    NSData *uuid = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-    [[PBPebbleCentral defaultCentral] setAppUUID:uuid];
+    self.central.appUUID = [[NSUUID alloc] initWithUUIDString:@"af17efe7-2141-4eb2-b62a-19fc1b595595"];
     
-    // Get watch reference
-    self.watch = [[PBPebbleCentral defaultCentral] lastConnectedWatch];
-    if(self.watch) {
-        // Watch connected!
-        [self.outputLabel setText:@"Choose a weapon..."];
-        
-        // Register for AppMessage delivery
-        [self.watch appMessagesAddReceiveUpdateHandler:^BOOL(PBWatch *watch, NSDictionary *update) {
-            // A new message has been received in 'update'
-            if([update objectForKey:@(KEY_CHOICE)]) {
-                // The KEY_CHOICE key is in the message!
-                remoteChoice = [[update objectForKey:@(KEY_CHOICE)] intValue];
-                
-                // Has the iOS player chosen already?
-                if(localChoice != CHOICE_WAITING) {
-                    [self doMatch];
-                }
-            }
-            
-            return YES;
-        }];
-    } else {
-        // Watch not connected!
-        [self.outputLabel setText:@"Watch NOT connected!"];
-    }
+    // Begin connection
+    [self.central run];
     
     // Set initial image
     [self updateUI];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
-    localChoice = CHOICE_WAITING;
-    winCounter = 0;
-    gameCounter = 0;
+    self.localChoice = ChoiceWaiting;
+    self.winCounter = 0;
+    self.gameCounter = 0;
     
     [self updateUI];
 }
 
 - (void)updateUI {
-    if(localChoice == CHOICE_WAITING) {
-        [self.outputLabel setText:@"Choose your weapon..."];
-        [self.rockButton setEnabled:YES];
-        [self.paperButton setEnabled:YES];
-        [self.scissorsButton setEnabled:YES];
+    if(self.localChoice == ChoiceWaiting) {
+        self.outputLabel.text = @"Choose your weapon...";
+        self.rockButton.enabled = YES;
+        self.paperButton.enabled = YES;
+        self.scissorsButton.enabled = YES;
         
         [self setImage:@"unknown"];
     } else {
         // A choice has been made
-        [self.rockButton setEnabled:NO];
-        [self.paperButton setEnabled:NO];
-        [self.scissorsButton setEnabled:NO];
-        [self.outputLabel setText:@"Waiting for opponent..."];
+        self.rockButton.enabled = NO;
+        self.paperButton.enabled = NO;
+        self.scissorsButton.enabled = NO;
+        self.outputLabel.text = @"Waiting for opponent...";
 
-        switch(localChoice) {
-            case CHOICE_ROCK:
+        switch(self.localChoice) {
+            case ChoiceRock:
                 [self setImage:@"rock"];
                 break;
-            case CHOICE_PAPER:
+            case ChoicePaper:
                 [self setImage:@"paper"];
                 break;
-            case CHOICE_SCISSORS:
+            case ChoiceScissors:
                 [self setImage:@"scissors"];
+                break;
+            case ChoiceWaiting: // Handled above
                 break;
         }
     }
     
     // Check Pebble player response has arrived first
-    if(localChoice != CHOICE_WAITING && remoteChoice != CHOICE_WAITING) {
+    if(self.localChoice != ChoiceWaiting && self.remoteChoice != ChoiceWaiting) {
         [self doMatch];
+    }
+}
+
+-(GameResult)compareChoices {
+    if(self.localChoice == self.remoteChoice) {
+        // It's a tie!
+        return ResultTie;
+    } else {
+        // The two are different. Which one wins?
+        switch (self.localChoice) {
+            case ChoiceRock:
+                // Beats scissors, loses to paper
+                return self.remoteChoice == ChoiceScissors ? ResultWin : ResultLose;
+            case ChoicePaper:
+                // Beats rock, loses to scissors
+                return self.remoteChoice == ChoiceRock ? ResultWin : ResultLose;
+            case ChoiceScissors:
+                // Beats paper, loses to rock
+                return self.remoteChoice == ChoicePaper ? ResultWin : ResultLose;
+            case ChoiceWaiting:
+            default:
+                // (Shouldn't happen)
+                return ResultTie;
+        }
     }
 }
 
@@ -159,81 +211,41 @@ int gameCounter, winCounter;
  */
 - (void)doMatch {
     // Remember how many games in this session
-    gameCounter++;
+    self.gameCounter++;
     
     // Prepare message for Pebble app
     NSMutableDictionary *outgoing = [NSMutableDictionary new];
     
-    switch (localChoice) {
-        case CHOICE_ROCK:
-            switch(remoteChoice) {
-                case CHOICE_ROCK:
-                    [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
-                    break;
-                case CHOICE_PAPER:
-                    [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
-                    break;
-                case CHOICE_SCISSORS:
-                    winCounter++;
-                    [self.outputLabel setText:[NSString stringWithFormat:@"You win! (%d of %d)", winCounter, gameCounter]];
-                    [outgoing setObject:@(RESULT_LOSE) forKey:@(KEY_RESULT)];
-                    break;
-            }
+    GameResult result = [self compareChoices];
+    switch(result) {
+        case ResultTie:
+            self.outputLabel.text = @"It's a tie!";
+            outgoing[@(KeyResult)] = @(ResultTie);
             break;
-        case CHOICE_PAPER:
-            switch(remoteChoice) {
-                case CHOICE_ROCK:
-                    winCounter++;
-                    [self.outputLabel setText:[NSString stringWithFormat:@"You win! (%d of %d)", winCounter, gameCounter]];
-                    break;
-                case CHOICE_PAPER:
-                    [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
-                    break;
-                case CHOICE_SCISSORS:
-                    [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
-                    break;
-            }
+        case ResultWin:
+            self.winCounter++;
+            self.outputLabel.text = [NSString stringWithFormat:@"You win! (%d of %d)", (int)self.winCounter, (int)self.gameCounter];
+            outgoing[@(KeyResult)] = @(ResultWin);
             break;
-        case CHOICE_SCISSORS:
-            switch(remoteChoice) {
-                case CHOICE_ROCK:
-                    [self.outputLabel setText:@"You lose!"];
-                    [outgoing setObject:@(RESULT_WIN) forKey:@(KEY_RESULT)];
-                    break;
-                case CHOICE_PAPER:
-                    winCounter++;
-                    [self.outputLabel setText:[NSString stringWithFormat:@"You win! (%d of %d)", winCounter, gameCounter]];
-                    [outgoing setObject:@(RESULT_LOSE) forKey:@(KEY_RESULT)];
-                    break;
-                case CHOICE_SCISSORS:
-                    [self.outputLabel setText:@"It's a tie!"];
-                    [outgoing setObject:@(RESULT_TIE) forKey:@(KEY_RESULT)];
-                    break;
-            }
+        case ResultLose:
+            self.outputLabel.text = @"You lose!";
+            outgoing[@(KeyResult)] = @(ResultLose);
             break;
     }
     
     // Send message to Pebble player
     [self.watch appMessagesPushUpdate:outgoing onSent:^(PBWatch *watch, NSDictionary *update, NSError *error) {
-        // Successful?
         if(error) {
             NSLog(@"Error sending update: %@", error);
         }
     }];
     
     // Finally reset both
-    localChoice = CHOICE_WAITING;
-    remoteChoice = CHOICE_WAITING;
+    self.localChoice = ChoiceWaiting;
+    self.remoteChoice = ChoiceWaiting;
     
-    // Leave announcement for 5 seconds
-    dispatch_time_t t = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
-    dispatch_after(t, dispatch_get_main_queue(), ^(void){
-        [self updateUI];
-    });
+    // Remove result announcement after 5 seconds
+    [self performSelector:@selector(updateUI) withObject:nil afterDelay:5];
 }
 
 - (void)didReceiveMemoryWarning {
