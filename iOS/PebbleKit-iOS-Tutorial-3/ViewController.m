@@ -80,7 +80,7 @@ typedef NS_ENUM(NSUInteger, Choice) {
     self.watch = watch;
     
     // Watch connected, ask user for choice
-    [self.outputLabel setText:@"Choose a weapon..."];
+    [self.outputLabel setText:@"Pebble ready. Choose your weapon..."];
     
     // Keep a weak reference to self to prevent it staying around forever
     __weak typeof(self) welf = self;
