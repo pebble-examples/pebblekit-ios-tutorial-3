@@ -111,7 +111,7 @@ static uint16_t get_num_rows_callback(struct MenuLayer *menu_layer, uint16_t sec
 static void select_click_callback(struct MenuLayer *menu_layer, MenuIndex *cell_index, void *context) {
   // Only allow choice when waiting for one
   if(s_choice == CHOICE_WAITING) {
-    s_choice = CHOICE_ROCK;
+    s_choice = cell_index->row;
     
     // Prepare for new GBitmap
     gbitmap_destroy(s_choice_bitmap);
