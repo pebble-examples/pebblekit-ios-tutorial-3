@@ -194,7 +194,10 @@ static void init(void) {
   window_stack_push(s_main_window, true);
 
   app_message_register_inbox_received(received_handler);
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  
+  const int inbox_size = 128;
+  const int outbox_size = 128;
+  app_message_open(inbox_size, outbox_size);
 }
 
 static void deinit(void) {
